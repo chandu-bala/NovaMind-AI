@@ -1,35 +1,25 @@
-// // backend/config/firestore.js
-// const admin = require("firebase-admin");
+// backend/config/gemini.js
+const { VertexAI } = require("@google-cloud/vertexai");
 
-// let app;
-// if (!admin.apps.length) {
-//   // If GOOGLE_APPLICATION_CREDENTIALS is set, admin will pick it automatically.
-//   app = admin.initializeApp({
-//     credential: admin.credential.applicationDefault(),
-//   });
-// } else {
-//   app = admin.app();
-// }
+const projectId = process.env.GCP_PROJECT_ID;
+const location = process.env.GCP_REGION || "us-central1";
 
-// const db = admin.firestore();
+// ✅ Safest and most compatible Gemini model
+const MODEL_ID = "gemini-1.5-flash";
 
-// module.exports = {
-//   db,
-// };
-
-
-const admin = require("firebase-admin");
-const path = require("path");
-
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert(
-      require(path.join(__dirname, "../service-account.json"))
-    ),
-  });
+if (!projectId) {
+  console.warn("⚠️ GCP_PROJECT_ID is not set in environment variables.");
 }
 
-const db = admin.firestore();
+const vertexAI = new VertexAI({
+  project: projectId,
+  location: location,
+});
 
-module.exports = { db };
+const generativeModel = vertexAI.getGenerativeModel({
+  model: MODEL_ID,
+});
 
+module.exports = {
+  generativeModel,
+};
