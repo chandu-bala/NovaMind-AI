@@ -22,6 +22,8 @@ document.getElementById("idea-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const idea = document.getElementById("idea-input").value.trim();
   const domain = document.getElementById("idea-domain").value.trim();
+  const industry = document.getElementById("idea-industry").value;
+
   const loadingEl = document.getElementById("idea-loading");
   const resultEl = document.getElementById("idea-result");
 
@@ -29,8 +31,8 @@ document.getElementById("idea-form").addEventListener("submit", async (e) => {
   loadingEl.classList.remove("d-none");
 
   try {
-    const data = await postJSON("/api/ideas/refine", { idea, domain });
-    resultEl.textContent = data.analysis || JSON.stringify(data, null, 2);
+    const data = await postJSON("/api/ideas/refine", { idea, domain,industry });
+    resultEl.innerHTML = marked.parse(data.analysis) || JSON.stringify(data, null, 2);
   } catch (err) {
     resultEl.textContent = "Error: " + err.message;
   } finally {
@@ -167,3 +169,86 @@ chatForm.addEventListener("submit", async (e) => {
     chatLoading.classList.add("d-none");
   }
 });
+
+const scoreBtn = document.getElementById("score-idea-btn");
+const scoreResultEl = document.getElementById("idea-score-result");
+const scoreLoadingEl = document.getElementById("score-idea-loading");
+
+scoreBtn.addEventListener("click", async () => {
+  const idea = document.getElementById("idea-input").value.trim();
+  const domain = document.getElementById("idea-domain").value.trim();
+  const industry = document.getElementById("idea-industry").value;
+
+  if (!idea) {
+    scoreResultEl.textContent = "Please enter an idea first.";
+    return;
+  }
+
+  scoreResultEl.textContent = "";
+  scoreLoadingEl.classList.remove("d-none");
+
+  try {
+    const data = await postJSON("/api/ideas/score", { idea, domain, industry });
+    scoreResultEl.innerHTML = marked.parse(data.scores || JSON.stringify(data, null, 2));
+  } catch (err) {
+    scoreResultEl.textContent = "Error: " + err.message;
+  } finally {
+    scoreLoadingEl.classList.add("d-none");
+  }
+});
+
+
+const timelineBtn = document.getElementById("timeline-btn");
+const timelineResultEl = document.getElementById("timeline-result");
+const timelineLoadingEl = document.getElementById("timeline-loading");
+
+timelineBtn.addEventListener("click", async () => {
+  const refined = document.getElementById("idea-result").textContent.trim();
+  if (!refined) {
+    timelineResultEl.textContent = "Refine the idea first before generating a timeline.";
+    return;
+  }
+
+  timelineResultEl.textContent = "";
+  timelineLoadingEl.classList.remove("d-none");
+
+  try {
+    const data = await postJSON("/api/project/timeline", {
+      refinedIdea: refined,
+    });
+
+    timelineResultEl.innerHTML = marked.parse(
+      data.timeline || JSON.stringify(data, null, 2)
+    );
+  } catch (err) {
+    timelineResultEl.textContent = "Error: " + err.message;
+  } finally {
+    timelineLoadingEl.classList.add("d-none");
+  }
+});
+
+async function loadDashboard() {
+  try {
+    const res = await fetch("/api/dashboard/stats");
+    const data = await res.json();
+
+    const s = data.stats || {};
+    document.getElementById("stat-ideas").textContent = s.ideas || 0;
+    document.getElementById("stat-learning").textContent = s.learningPaths || 0;
+    document.getElementById("stat-career").textContent = s.careerPlans || 0;
+    document.getElementById("stat-interactions").textContent =
+      s.totalInteractions || 0;
+  } catch (error) {
+    console.error("Dashboard load error:", error);
+  }
+}
+
+// Button refresh
+document
+  .getElementById("refresh-dashboard")
+  .addEventListener("click", loadDashboard);
+
+// Auto load on tab open
+document
+  .getElementById("dashboard-tab")
+  .addEventListener("click", loadDashboard);

@@ -44,6 +44,11 @@ Return the answer in a structured, readable format with headings and bullet poin
       roadmap,
       createdAt: new Date(),
     });
+    await db.collection("interactions").add({
+  type: "learning-roadmap",
+  createdAt: new Date().toISOString(),
+});
+
 
     return res.json({
       id: docRef.id,
@@ -77,6 +82,7 @@ async function getLearningPaths(req, res) {
     return res.status(500).json({ error: "Failed to fetch learning paths." });
   }
 }
+
 
 module.exports = {
   generateLearningRoadmap,

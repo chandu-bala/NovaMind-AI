@@ -46,3 +46,8 @@ body {
   color: #212529;
   margin-right: auto;
 }
+#chat-tab {
+  background: #0d6efd;
+  color: #fff !important;
+  font-weight: 600;
+}

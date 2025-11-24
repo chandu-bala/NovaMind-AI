@@ -39,6 +39,11 @@ Return the response in sections with headings.
       impact,
       createdAt: new Date(),
     });
+    await db.collection("interactions").add({
+  type: "impact-analysis",
+  createdAt: new Date().toISOString(),
+});
+
 
     return res.json({
       id: docRef.id,

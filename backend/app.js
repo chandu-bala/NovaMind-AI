@@ -7,7 +7,8 @@ const learningRoutes = require("./routes/learning.routes");
 const careerRoutes = require("./routes/career.routes");
 const impactRoutes = require("./routes/impact.routes");
 const chatRoutes = require("./routes/chat.routes");
-
+const projectRoutes = require("./routes/project.routes");
+const dashboardRoutes = require("./routes/dashboard.routes");
 const app = express();
 
 app.use(cors());
@@ -27,5 +28,9 @@ app.use("/api/learning", learningRoutes);
 app.use("/api/career", careerRoutes);
 app.use("/api/impact", impactRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/project", projectRoutes);
+app.use("/api/dashboard", dashboardRoutes);
+
+
 
 module.exports = app;

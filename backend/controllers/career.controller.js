@@ -45,6 +45,11 @@ Return answer in structured format.
       guidance,
       createdAt: new Date(),
     });
+    await db.collection("interactions").add({
+  type: "career-guidance",
+  createdAt: new Date().toISOString(),
+});
+
 
     return res.json({
       id: docRef.id,

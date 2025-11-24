@@ -1,0 +1,7 @@
+const express = require("express");
+const router = express.Router();
+const { generateTimeline } = require("../controllers/project.controller");
+
+router.post("/timeline", generateTimeline);
+
+module.exports = router;

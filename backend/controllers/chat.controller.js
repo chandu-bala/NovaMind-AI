@@ -29,6 +29,11 @@ Respond in a friendly, concise, and helpful way, guiding the user about projects
       reply,
       createdAt: new Date(),
     });
+    await db.collection("interactions").add({
+  type: "chat",
+  createdAt: new Date().toISOString(),
+});
+
 
     return res.json({
       id: docRef.id,

@@ -14,6 +14,8 @@
 
     <link rel="stylesheet" href="./css/styles.css" />
   </head>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
   <body>
     <!-- Navbar -->
     <nav class="navbar navbar-dark bg-dark navbar-expand-lg">
@@ -28,7 +30,8 @@
     <main class="container my-4">
       <!-- Tabs -->
       <ul class="nav nav-pills mb-3" id="novamind-tabs" role="tablist">
-        <li class="nav-item" role="presentation">
+        
+
           <button
             class="nav-link active"
             id="idea-tab"
@@ -77,6 +80,19 @@
           </button>
         </li>
         <li class="nav-item" role="presentation">
+              <button
+    class="nav-link"
+    id="dashboard-tab"
+    data-bs-toggle="pill"
+    data-bs-target="#dashboard-panel"
+    type="button"
+    role="tab"
+  >
+    Dashboard
+  </button>
+</li>
+<div class="ms-auto d-flex"></div>
+        <li class="nav-item" role="presentation">
           <button
             class="nav-link"
             id="chat-tab"
@@ -87,11 +103,77 @@
           >
             AI Chat Mentor
           </button>
+          <li class="nav-item" role="presentation">
+
         </li>
       </ul>
 
       <div class="tab-content" id="novamind-tabs-content">
+        <!-- DASHBOARD PANEL -->
+<div
+  class="tab-pane fade"
+  id="dashboard-panel"
+  role="tabpanel"
+  aria-labelledby="dashboard-tab"
+>
+  <div class="card shadow-sm">
+    <div class="card-header fw-bold">📊 AI Progress Dashboard</div>
+    <div class="card-body">
+
+      <button class="btn btn-outline-dark mb-3" id="refresh-dashboard">
+        Refresh Stats
+      </button>
+
+      <div class="row text-center">
+
+        <div class="col-md-3 mb-3">
+          <div class="card h-100">
+            <div class="card-body">
+              <h6>Ideas Submitted</h6>
+              <h2 id="stat-ideas">0</h2>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+          <div class="card h-100">
+            <div class="card-body">
+              <h6>Learning Roadmaps</h6>
+              <h2 id="stat-learning">0</h2>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+          <div class="card h-100">
+            <div class="card-body">
+              <h6>Career Plans</h6>
+              <h2 id="stat-career">0</h2>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+          <div class="card h-100">
+            <div class="card-body">
+              <h6>Total AI Interactions</h6>
+              <h2 id="stat-interactions">0</h2>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <p class="text-muted mt-2 small">
+        These stats update automatically based on your activity in NovaMind-AI.
+      </p>
+
+    </div>
+  </div>
+</div>
+
         <!-- IDEA TAB -->
+
         <div
           class="tab-pane fade show active"
           id="idea-panel"
@@ -112,19 +194,23 @@
                     required
                   ></textarea>
                 </div>
+                
                 <div class="mb-3">
-                  <label class="form-label">Domain</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="idea-domain"
-                    placeholder="e.g., Education, Health, FinTech"
-                    required
-                  />
-                </div>
+  <label class="form-label">Industry Focus</label>
+  <select class="form-select" id="idea-industry">
+    <option value="Education">Education</option>
+    <option value="Healthcare">Healthcare</option>
+    <option value="Finance">Finance</option>
+    <option value="IoT">IoT</option>
+    <option value="Startups">Startups</option>
+  </select>
+</div>
+
                 <button type="submit" class="btn btn-primary">
                   Refine Idea
                 </button>
+                
+
                 <span
                   id="idea-loading"
                   class="ms-2 text-muted small d-none"
@@ -132,14 +218,37 @@
                   Thinking with Gemini...
                 </span>
               </form>
-
-              <hr />
-
+              <br>
               <h6>Refined Project Blueprint</h6>
               <pre
                 class="result-box"
                 id="idea-result"
               ></pre>
+
+              <hr />
+
+              
+              <hr />
+<h6>Project Execution Timeline (4 weeks)</h6>
+<button type="button" class="btn btn-outline-primary mb-2" id="timeline-btn">
+  Generate Project Timeline
+</button>
+<span id="timeline-loading" class="ms-2 text-muted small d-none">
+  Generating timeline...
+</span>
+<pre class="result-box" id="timeline-result"></pre>
+              
+              <hr />
+<h6>Idea Scoring (Innovation / Feasibility / Market)</h6>
+<button type="button" class="btn btn-outline-secondary mb-2" id="score-idea-btn">
+  Score This Idea
+</button>
+<span id="score-idea-loading" class="ms-2 text-muted small d-none">
+  Evaluating idea...
+</span>
+<pre class="result-box" id="idea-score-result"></pre>
+
+              
             </div>
           </div>
         </div>
