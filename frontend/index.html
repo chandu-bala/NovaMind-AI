@@ -1,0 +1,379 @@
+<!-- frontend/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>NovaMind-AI | AI Mentor for Projects & Learning</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Bootstrap 5 CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="./css/styles.css" />
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark bg-dark navbar-expand-lg">
+      <div class="container-fluid">
+        <a class="navbar-brand fw-bold" href="#">NovaMind-AI</a>
+        <span class="navbar-text text-light small">
+          An AI Mentor for Project, Learning & Career Growth
+        </span>
+      </div>
+    </nav>
+
+    <main class="container my-4">
+      <!-- Tabs -->
+      <ul class="nav nav-pills mb-3" id="novamind-tabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link active"
+            id="idea-tab"
+            data-bs-toggle="pill"
+            data-bs-target="#idea-panel"
+            type="button"
+            role="tab"
+          >
+            Idea → Project
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link"
+            id="learning-tab"
+            data-bs-toggle="pill"
+            data-bs-target="#learning-panel"
+            type="button"
+            role="tab"
+          >
+            Learning Roadmap
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link"
+            id="career-tab"
+            data-bs-toggle="pill"
+            data-bs-target="#career-panel"
+            type="button"
+            role="tab"
+          >
+            Career Guidance
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link"
+            id="impact-tab"
+            data-bs-toggle="pill"
+            data-bs-target="#impact-panel"
+            type="button"
+            role="tab"
+          >
+            Impact Analysis
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link"
+            id="chat-tab"
+            data-bs-toggle="pill"
+            data-bs-target="#chat-panel"
+            type="button"
+            role="tab"
+          >
+            AI Chat Mentor
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content" id="novamind-tabs-content">
+        <!-- IDEA TAB -->
+        <div
+          class="tab-pane fade show active"
+          id="idea-panel"
+          role="tabpanel"
+          aria-labelledby="idea-tab"
+        >
+          <div class="card shadow-sm">
+            <div class="card-header">Idea → Project Refinement</div>
+            <div class="card-body">
+              <form id="idea-form">
+                <div class="mb-3">
+                  <label class="form-label">Your Raw Idea</label>
+                  <textarea
+                    class="form-control"
+                    id="idea-input"
+                    rows="3"
+                    placeholder="Describe your project idea..."
+                    required
+                  ></textarea>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Domain</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="idea-domain"
+                    placeholder="e.g., Education, Health, FinTech"
+                    required
+                  />
+                </div>
+                <button type="submit" class="btn btn-primary">
+                  Refine Idea
+                </button>
+                <span
+                  id="idea-loading"
+                  class="ms-2 text-muted small d-none"
+                >
+                  Thinking with Gemini...
+                </span>
+              </form>
+
+              <hr />
+
+              <h6>Refined Project Blueprint</h6>
+              <pre
+                class="result-box"
+                id="idea-result"
+              ></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- LEARNING TAB -->
+        <div
+          class="tab-pane fade"
+          id="learning-panel"
+          role="tabpanel"
+          aria-labelledby="learning-tab"
+        >
+          <div class="card shadow-sm">
+            <div class="card-header">Learning Roadmap Generator</div>
+            <div class="card-body">
+              <form id="learning-form">
+                <div class="mb-3">
+                  <label class="form-label">Goal</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="learning-goal"
+                    placeholder="e.g., Become a Cloud Engineer"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Current Level</label>
+                  <select class="form-select" id="learning-level" required>
+                    <option value="beginner">Beginner</option>
+                    <option value="intermediate">Intermediate</option>
+                    <option value="advanced">Advanced</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Hours per Day</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="10"
+                    class="form-control"
+                    id="learning-hours"
+                    value="2"
+                    required
+                  />
+                </div>
+                <button type="submit" class="btn btn-primary">
+                  Generate Roadmap
+                </button>
+                <span
+                  id="learning-loading"
+                  class="ms-2 text-muted small d-none"
+                >
+                  Generating roadmap with Gemini...
+                </span>
+              </form>
+
+              <hr />
+              <h6>4-Week Learning Roadmap</h6>
+              <pre
+                class="result-box"
+                id="learning-result"
+              ></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- CAREER TAB -->
+        <div
+          class="tab-pane fade"
+          id="career-panel"
+          role="tabpanel"
+          aria-labelledby="career-tab"
+        >
+          <div class="card shadow-sm">
+            <div class="card-header">Career Guidance Advisor</div>
+            <div class="card-body">
+              <form id="career-form">
+                <div class="mb-3">
+                  <label class="form-label">Education</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="career-education"
+                    placeholder="e.g., B.Tech in CSE"
+                  />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Skills</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="career-skills"
+                    placeholder="e.g., Java, Python, GCP"
+                  />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Interests</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="career-interests"
+                    placeholder="e.g., AI, Cloud, Data"
+                  />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Target Role</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="career-target"
+                    placeholder="e.g., Cloud Engineer"
+                  />
+                </div>
+                <button type="submit" class="btn btn-primary">
+                  Get Career Guidance
+                </button>
+                <span
+                  id="career-loading"
+                  class="ms-2 text-muted small d-none"
+                >
+                  Analyzing profile with Gemini...
+                </span>
+              </form>
+
+              <hr />
+              <h6>Career Guidance & Mentor Suggestions</h6>
+              <pre
+                class="result-box"
+                id="career-result"
+              ></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- IMPACT TAB -->
+        <div
+          class="tab-pane fade"
+          id="impact-panel"
+          role="tabpanel"
+          aria-labelledby="impact-tab"
+        >
+          <div class="card shadow-sm">
+            <div class="card-header">Impact Analyzer</div>
+            <div class="card-body">
+              <form id="impact-form">
+                <div class="mb-3">
+                  <label class="form-label">Project Title</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="impact-title"
+                    placeholder="e.g., NovaMind-AI"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Domain</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="impact-domain"
+                    placeholder="e.g., Education, Healthcare"
+                  />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Short Description</label>
+                  <textarea
+                    class="form-control"
+                    id="impact-description"
+                    rows="3"
+                    placeholder="What does this project do?"
+                  ></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                  Analyze Impact
+                </button>
+                <span
+                  id="impact-loading"
+                  class="ms-2 text-muted small d-none"
+                >
+                  Evaluating impact...
+                </span>
+              </form>
+              <hr />
+              <h6>Impact Analysis</h6>
+              <pre
+                class="result-box"
+                id="impact-result"
+              ></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- CHAT TAB -->
+        <div
+          class="tab-pane fade"
+          id="chat-panel"
+          role="tabpanel"
+          aria-labelledby="chat-tab"
+        >
+          <div class="card shadow-sm">
+            <div class="card-header">AI Chat Mentor</div>
+            <div class="card-body d-flex flex-column" style="height: 450px">
+              <div
+                id="chat-window"
+                class="flex-grow-1 border rounded p-2 mb-2 chat-window"
+              ></div>
+
+              <form id="chat-form" class="d-flex">
+                <input
+                  type="text"
+                  id="chat-input"
+                  class="form-control"
+                  placeholder="Ask NovaMind-AI about projects, learning, or careers..."
+                  required
+                />
+                <button type="submit" class="btn btn-primary ms-2">
+                  Send
+                </button>
+              </form>
+              <span
+                id="chat-loading"
+                class="mt-1 text-muted small d-none"
+              >
+                NovaMind-AI is thinking...
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Bootstrap JS (for tabs etc.) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="./js/app.js"></script>
+  </body>
+</html>
