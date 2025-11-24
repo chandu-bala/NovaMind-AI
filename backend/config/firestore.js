@@ -1,23 +1,16 @@
-// backend/config/gemini.js
-const { VertexAI } = require("@google-cloud/vertexai");
+const admin = require("firebase-admin");
+const path = require("path");
 
-const projectId = process.env.GCP_PROJECT_ID;
-const location = process.env.GCP_REGION || "us-central1";
+const serviceAccount = require(path.join(__dirname, "../service-account.json"));
 
-// ✅ Use the model exactly as shown in Model Garden
-const MODEL_ID = "gemini-2.5-flash";
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+  });
+}
 
-const vertexAI = new VertexAI({
-  project: projectId,
-  location: location,
-});
+const db = admin.firestore();
 
-const generativeModel = vertexAI.getGenerativeModel({
-  model: MODEL_ID,
-});
+console.log("✅ Firestore connected successfully");
 
-console.log("✅ Gemini Model Loaded:", MODEL_ID);
-
-module.exports = {
-  generativeModel,
-};
+module.exports = { db };
