@@ -37,9 +37,61 @@
         </span>
       </div>
     </nav>
+    <div class="text-end text-muted small" id="user-display"></div>
+
 
     <main class="container my-4">
+        <div id="landing-page" class="text-center mt-5">
+  <h1 class="fw-bold">Welcome to NovaMind-AI</h1>
+  <p class="lead mt-3">
+    Your AI mentor for project refinement, learning guidance and career growth.
+  </p>
+
+  <div class="mt-4">
+    <button class="btn btn-primary me-2" id="open-login-btn">Login</button>
+    <button class="btn btn-outline-secondary" id="open-signup-btn">Sign Up</button>
+  </div>
+</div>
+<div id="login-page" class="d-none">
+  <h3 class="mb-3">Login to NovaMind-AI</h3>
+
+  <form id="login-form" class="w-50 mx-auto">
+    <div class="mb-3">
+      <label>Email</label>
+      <input type="email" class="form-control" id="login-email" required />
+    </div>
+    <div class="mb-3">
+      <label>Password</label>
+      <input type="password" class="form-control" id="login-password" required />
+    </div>
+
+    <button type="submit" class="btn btn-success w-100">Login</button>
+  </form>
+</div>
+<div id="signup-page" class="d-none">
+  <h3 class="mb-3">Create an Account</h3>
+
+  <form id="signup-form" class="w-50 mx-auto">
+    <div class="mb-3">
+      <label>Name</label>
+      <input type="text" class="form-control" id="signup-name" required />
+    </div>
+    <div class="mb-3">
+      <label>Email</label>
+      <input type="email" class="form-control" id="signup-email" required />
+    </div>
+    <div class="mb-3">
+      <label>Password</label>
+      <input type="password" class="form-control" id="signup-password" required />
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100">Sign Up</button>
+  </form>
+</div>
+
       <!-- Tabs -->
+       <div id="dashboard-page" class="d-none">
+
       <ul class="nav nav-pills mb-3" id="novamind-tabs" role="tablist">
         
 
@@ -490,6 +542,8 @@
           </div>
         </div>
       </div>
+      </div> <!-- end of dashboard-page -->
+
     </main>
 
     <!-- Bootstrap JS (for tabs etc.) -->

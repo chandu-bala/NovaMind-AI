@@ -9,10 +9,12 @@ const impactRoutes = require("./routes/impact.routes");
 const chatRoutes = require("./routes/chat.routes");
 const projectRoutes = require("./routes/project.routes");
 const dashboardRoutes = require("./routes/dashboard.routes");
+const authRoutes = require("./routes/auth.routes");
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use("/api/auth", authRoutes);
 
 // Serve static frontend
 app.use(express.static(path.join(__dirname, "../frontend")));
