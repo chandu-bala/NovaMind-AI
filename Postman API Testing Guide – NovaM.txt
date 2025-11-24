@@ -1,0 +1,214 @@
+✅ Postman API Testing Guide – NovaMind-AI
+🔹 Base URL (Local)
+
+http://localhost:8080
+
+
+(Replace with Cloud Run URL later after deployment)
+
+1️⃣ Idea Processing APIs
+1.1 Refine Idea
+
+Endpoint
+
+	POST /api/ideas/refine
+
+In Postman:
+
+Method: POST
+
+URL:
+
+	http://localhost:8080/api/ideas/refine
+
+
+Headers:
+
+Content-Type: application/json
+
+
+Body → raw → JSON:
+
+{
+  "idea": "Smart waste management system using IoT sensors",
+  "industry": "IoT"
+}
+
+✅ Expected Response:
+{
+  "success": true,
+  "analysis": "Structured project blueprint..."
+}
+
+1.2 Score Idea
+
+Endpoint
+
+POST /api/ideas/score
+
+Body:
+{
+  "idea": "AI-based traffic management system",
+  "industry": "Smart Cities"
+}
+
+✅ Expected:
+{
+  "scores": {
+    "Innovation": 8,
+    "Feasibility": 7,
+    "MarketValue": 9
+  }
+}
+
+2️⃣ Learning Module
+Generate Learning Roadmap
+POST /api/learning/roadmap
+
+Body:
+{
+  "goal": "Become a Cloud Engineer",
+  "level": "beginner",
+  "hoursPerDay": 3
+}
+
+✅ Expected:
+{
+  "roadmap": "Week 1: Basics of Cloud..."
+}
+
+3️⃣ Career Module
+Career Guidance
+POST /api/career/guidance
+
+Body:
+{
+  "education": "B.Tech CSE",
+  "skills": "Java, Python, MongoDB",
+  "interests": "AI, Cloud",
+  "targetRole": "AI Engineer"
+}
+
+✅ Expected:
+{
+  "guidance": "Recommended roles, skill upgrades..."
+}
+
+4️⃣ Impact Analyzer
+Analyze Impact
+POST /api/impact/analyze
+
+Body:
+{
+  "projectTitle": "NovaMind-AI",
+  "domain": "Education",
+  "description": "AI mentor for student project planning"
+}
+
+✅ Expected:
+{
+  "impact": "High societal and academic value..."
+}
+
+5️⃣ AI Chat System
+Chat with AI Mentor
+POST /api/chat
+
+Body:
+{
+  "message": "How can I improve my project scope?",
+  "context": "Project assistance"
+}
+
+✅ Expected:
+{
+  "reply": "You should enhance it by..."
+}
+
+6️⃣ Project Timeline
+Generate Timeline
+POST /api/project/timeline
+
+Body:
+{
+  "refinedIdea": "AI system for university learning automation"
+}
+
+✅ Expected:
+{
+  "timeline": "Week 1: Planning..."
+}
+
+7️⃣ Dashboard & Analytics
+7.1 Overall Stats
+GET /api/dashboard/stats
+
+URL:
+http://localhost:8080/api/dashboard/stats
+
+✅ Response:
+{
+  "stats": {
+    "ideas": 5,
+    "learningPaths": 2,
+    "careerPlans": 3,
+    "totalInteractions": 15
+  }
+}
+
+7.2 Idea History
+GET /api/dashboard/ideas
+
+
+✅ Returns array of stored ideas.
+
+7.3 Learning Paths History
+GET /api/dashboard/learning
+
+
+✅ Returns list of saved roadmaps.
+
+7.4 Career Plans History
+GET /api/dashboard/careers
+
+
+✅ Returns list of career guidance logs.
+
+8️⃣ Authentication
+8.1 Sign Up
+POST /api/auth/signup
+
+Body:
+{
+  "name": "Bala Chandu",
+  "email": "bala@example.com",
+  "password": "mypassword123"
+}
+
+
+✅ Expected:
+
+{
+  "success": true,
+  "message": "Account created successfully"
+}
+
+8.2 Login
+POST /api/auth/login
+
+Body:
+{
+  "email": "bala@example.com",
+  "password": "mypassword123"
+}
+
+
+✅ Expected:
+
+{
+  "success": true,
+  "user": {
+    "name": "Bala Chandu",
+    "email": "bala@example.com"
+  }
+}
