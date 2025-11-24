@@ -1,263 +1,304 @@
 document.addEventListener("DOMContentLoaded", () => {
   const API_BASE_URL = "";
 
-  // ---------- SESSION HELPER ----------
+  /* =============================
+     SESSION HELPERS
+  ============================= */
+  function getSessionUser() {
+    return JSON.parse(localStorage.getItem("novamind-session"));
+  }
+
   function getSessionUserId() {
-    const session = JSON.parse(localStorage.getItem("novamind-session"));
+    const session = getSessionUser();
     return session ? session.id : null;
   }
 
-  // ---------- SCREEN HANDLER ----------
+  /* =============================
+     SCREEN HANDLER
+  ============================= */
   const landingPage = document.getElementById("landing-page");
   const loginPage = document.getElementById("login-page");
   const signupPage = document.getElementById("signup-page");
   const dashboardPage = document.getElementById("dashboard-page");
 
   function showScreen(screen) {
-    landingPage.classList.add("d-none");
-    loginPage.classList.add("d-none");
-    signupPage.classList.add("d-none");
-    dashboardPage.classList.add("d-none");
-
+    [landingPage, loginPage, signupPage, dashboardPage].forEach(p => p.classList.add("d-none"));
     screen.classList.remove("d-none");
   }
 
-  // Default view
   showScreen(landingPage);
 
-  // Navigation buttons
-  const openLoginBtn = document.getElementById("open-login-btn");
-  const openSignupBtn = document.getElementById("open-signup-btn");
+  document.getElementById("open-login-btn")?.addEventListener("click", () => showScreen(loginPage));
+  document.getElementById("open-signup-btn")?.addEventListener("click", () => showScreen(signupPage));
 
-  if (openLoginBtn) {
-    openLoginBtn.onclick = () => showScreen(loginPage);
-  }
-  if (openSignupBtn) {
-    openSignupBtn.onclick = () => showScreen(signupPage);
-  }
+  const session = getSessionUser();
+  if (session) showScreen(dashboardPage);
 
-  // ---------- SESSION RESTORE ----------
-  const session = JSON.parse(localStorage.getItem("novamind-session"));
-  if (session) {
-    showScreen(dashboardPage);
-  }
+  /* =============================
+     SIGNUP
+  ============================= */
+  document.getElementById("signup-form")?.addEventListener("submit", async e => {
+    e.preventDefault();
 
-  // ---------- SIGNUP ----------
-  document
-    .getElementById("signup-form")
-    .addEventListener("submit", async (e) => {
-      e.preventDefault();
+    const name = document.getElementById("signup-name").value;
+    const email = document.getElementById("signup-email").value;
+    const password = document.getElementById("signup-password").value;
 
-      const name = document.getElementById("signup-name").value;
-      const email = document.getElementById("signup-email").value;
-      const password = document.getElementById("signup-password").value;
-
-      const res = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-        alert("✅ Account created! Now login.");
-        showScreen(loginPage);
-      } else {
-        alert(data.error);
-      }
-    });
-
-  // ---------- LOGIN ----------
-  document
-    .getElementById("login-form")
-    .addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const email = document.getElementById("login-email").value;
-      const password = document.getElementById("login-password").value;
-
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-        // store full user with id
-        localStorage.setItem("novamind-session", JSON.stringify(data.user));
-        showScreen(dashboardPage);
-      } else {
-        alert(data.error);
-      }
-    });
-
-  // ---------- API HELPER ----------
-  async function postJSON(path, data) {
-    const res = await fetch(API_BASE_URL + path, {
+    const res = await fetch("/api/auth/signup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      body: JSON.stringify({ name, email, password })
     });
-    return res.json();
-  }
 
-  // ---------- IDEA FORM ----------
-  document.getElementById("idea-form").addEventListener("submit", async e => {
-  e.preventDefault();
+    const data = await res.json();
+    if (data.success) {
+      alert("✅ Account created! Please login.");
+      showScreen(loginPage);
+    } else alert(data.error);
+  });
 
+  /* =============================
+     LOGIN
+  ============================= */
+  document.getElementById("login-form")?.addEventListener("submit", async e => {
+    e.preventDefault();
+
+    const email = document.getElementById("login-email").value;
+    const password = document.getElementById("login-password").value;
+
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      localStorage.setItem("novamind-session", JSON.stringify(data.user));
+      showScreen(dashboardPage);
+      loadDashboard();
+    } else alert(data.error);
+  });
+
+  /* =============================
+     IDEA REFINER
+  ============================= */
+  document.getElementById("idea-form")?.addEventListener("submit", async e => {
+    e.preventDefault();
+
+    const idea = document.getElementById("idea-input").value;
+    const industry = document.getElementById("idea-industry").value;
+    const userId = getSessionUserId();
+
+    const res = await fetch("/api/ideas/refine", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idea, industry, userId })
+    });
+
+    const data = await res.json();
+    if (!data.success) return alert(data.error);
+
+    document.getElementById("idea-result").innerHTML = marked.parse(data.analysis);
+  });
+
+
+  /* =============================
+     TIMELINE BUTTON (Uses refined idea)
+  ============================= */
+  /* =============================
+   ✅ PROJECT TIMELINE BUTTON
+============================= */
+const timelineBtn = document.getElementById("timeline-btn");
+
+if (timelineBtn) {
+  timelineBtn.addEventListener("click", async () => {
+
+    const timelineLoading = document.getElementById("timeline-loading");
+    const timelineResult = document.getElementById("timeline-result");
+    const refinedIdea = document.getElementById("idea-input").value;
+
+    if (!refinedIdea || refinedIdea.trim() === "") {
+      alert("Please refine an idea first before generating timeline.");
+      return;
+    }
+
+    timelineLoading.classList.remove("d-none");
+    timelineResult.innerHTML = "";
+
+    try {
+      const res = await fetch("/api/project/timeline", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refinedIdea })
+      });
+
+      const data = await res.json();
+
+      if (!data.success) {
+        alert(data.error || "Timeline generation failed.");
+        return;
+      }
+
+      timelineResult.innerHTML = marked.parse(data.timeline);
+
+    } catch (err) {
+      console.error("Timeline error:", err);
+      alert("Error generating timeline.");
+    } finally {
+      timelineLoading.classList.add("d-none");
+    }
+  });
+}
+
+/* =============================
+   ✅ IDEA SCORING BUTTON
+============================= */
+document.getElementById("score-idea-btn")?.addEventListener("click", async () => {
   const idea = document.getElementById("idea-input").value;
   const industry = document.getElementById("idea-industry").value;
+  const userId = getSessionUserId();
 
-  const sessionUser = JSON.parse(localStorage.getItem("novamind-session"));
+  if (!idea) {
+    alert("Please enter an idea first.");
+    return;
+  }
 
-  if (!sessionUser || !sessionUser.id) {
+  if (!userId) {
     alert("Please login first.");
     return;
   }
 
-  const data = await fetch("/api/ideas/refine", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      idea,
-      industry,
-      userId: sessionUser.id
-    })
-  });
+  const loadingEl = document.getElementById("score-idea-loading");
+  const resultEl = document.getElementById("idea-score-result");
 
-  const result = await data.json();
-
-  if (!result.success) {
-    console.error(result);
-    alert(result.error);
-    return;
-  }
-
-  document.getElementById("idea-result").innerHTML = marked.parse(result.analysis);
-});
-
-
-  // ---------- DASHBOARD ----------
-  async function loadDashboard() {
-    try {
-      const userId = getSessionUserId();
-      const res = await fetch(
-        `/api/dashboard/stats?userId=${encodeURIComponent(userId || "")}`
-      );
-      const data = await res.json();
-
-      document.getElementById("stat-ideas").textContent =
-        data.stats?.ideas ?? 0;
-      document.getElementById("stat-learning").textContent =
-        data.stats?.learningPaths ?? 0;
-      document.getElementById("stat-career").textContent =
-        data.stats?.careerPlans ?? 0;
-      document.getElementById("stat-interactions").textContent =
-        data.stats?.totalInteractions ?? 0;
-    } catch (err) {
-      console.error("Dashboard load error:", err);
-    }
-  }
-
-  const dashboardTab = document.getElementById("dashboard-tab");
-  const refreshDashboard = document.getElementById("refresh-dashboard");
-
-  if (dashboardTab) {
-    dashboardTab.onclick = loadDashboard;
-  }
-  if (refreshDashboard) {
-    refreshDashboard.onclick = loadDashboard;
-  }
-
-  // USER UI ELEMENTS (optional – only if you added them in navbar)
-  const userSection = document.getElementById("user-section");
-  const userDisplay = document.getElementById("user-display");
-  const logoutBtn = document.getElementById("logout-btn");
-
-  if (session && userSection && userDisplay) {
-    userSection.classList.remove("d-none");
-    // userDisplay.innerText = "Welcome " + (session.name || session.email);
-  }
-
-  if (logoutBtn) {
-    logoutBtn.addEventListener("click", () => {
-      localStorage.removeItem("novamind-session");
-      if (userSection) userSection.classList.add("d-none");
-      showScreen(landingPage);
-    });
-  }
-});
-
-/* ---------- POPUP HISTORY (GLOBAL) ---------- */
-window.showHistory = async function (type) {
-  let url = "";
-  let title = "";
-const sessionUser = JSON.parse(localStorage.getItem("novamind-session"));
-
-if (!sessionUser) {
-  alert("Session expired. Please login again.");
-  return;
-}
-
-if (type === "ideas") {
-  url = `/api/dashboard/ideas?userId=${sessionUser.id || sessionUser.email}`;
-}
-if (type === "learning") {
-  url = `/api/dashboard/learning?userId=${sessionUser.id || sessionUser.email}`;
-}
-if (type === "career") {
-  url = `/api/dashboard/careers?userId=${sessionUser.id || sessionUser.email}`;
-}
-
+  loadingEl.classList.remove("d-none");
+  resultEl.innerHTML = "";
 
   try {
-    const res = await fetch(url);
+    const res = await fetch("/api/ideas/score", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idea, industry, userId })
+    });
+
     const data = await res.json();
 
-    let html = "";
-
-    if (type === "ideas" && data.ideas) {
-      data.ideas.forEach((item) => {
-        html += `
-          <div class="border rounded p-2 mb-2">
-            <strong>Idea:</strong> ${item.idea}<br>
-            <small class="text-muted">${item.industry || ""}</small>
-          </div>`;
-      });
+    if (!data.success) {
+      alert(data.error || "Scoring failed");
+      return;
     }
 
-    if (type === "learning" && data.paths) {
-      data.paths.forEach((item) => {
-        html += `
-          <div class="border rounded p-2 mb-2">
-            <strong>Goal:</strong> ${item.goal}<br>
-            <small>Level: ${item.level}</small>
-          </div>`;
-      });
-    }
-
-    if (type === "career" && data.careers) {
-      data.careers.forEach((item) => {
-        html += `
-          <div class="border rounded p-2 mb-2">
-            <strong>Target Role:</strong> ${item.targetRole}<br>
-            <small>${item.skills}</small>
-          </div>`;
-      });
-    }
-
-    document.getElementById("dashboardModalTitle").innerText = title;
-    document.getElementById("dashboardModalBody").innerHTML =
-      html || "<p class='text-muted'>No data found</p>";
-
-    const modal = new bootstrap.Modal(
-      document.getElementById("dashboardModal")
-    );
-    modal.show();
-  } catch (err) {
-    console.error("Popup error:", err);
+    resultEl.innerHTML = marked.parse(data.scores);
+  } catch (error) {
+    console.error("Score Error:", error);
+    alert("Failed to score idea.");
+  } finally {
+    loadingEl.classList.add("d-none");
   }
-};
+});
+
+  /* =============================
+     LEARNING ROADMAP
+  ============================= */
+  document.getElementById("learning-form")?.addEventListener("submit", async e => {
+    e.preventDefault();
+
+    const userId = getSessionUserId();
+    const goal = document.getElementById("learning-goal").value;
+    const level = document.getElementById("learning-level").value;
+    const hoursPerDay = document.getElementById("learning-hours").value;
+
+    const res = await fetch("/api/learning/roadmap", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ goal, level, hoursPerDay, userId })
+    });
+
+    const data = await res.json();
+    if (!data.success) return alert(data.error);
+
+    document.getElementById("learning-result").innerHTML = marked.parse(data.roadmap);
+  });
+
+  /* =============================
+     CAREER GUIDANCE
+  ============================= */
+  document.getElementById("career-form")?.addEventListener("submit", async e => {
+    e.preventDefault();
+
+    const userId = getSessionUserId();
+    const education = document.getElementById("career-education").value;
+    const skills = document.getElementById("career-skills").value;
+    const interests = document.getElementById("career-interests").value;
+    const targetRole = document.getElementById("career-target").value;
+
+    const res = await fetch("/api/career/guidance", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ education, skills, interests, targetRole, userId })
+    });
+
+    const data = await res.json();
+    document.getElementById("career-result").innerHTML = marked.parse(data.guidance);
+  });
+
+  /* =============================
+     IMPACT ANALYZER
+  ============================= */
+  document.getElementById("impact-form")?.addEventListener("submit", async e => {
+    e.preventDefault();
+
+    const projectTitle = document.getElementById("impact-title").value;
+    const domain = document.getElementById("impact-domain").value;
+    const description = document.getElementById("impact-description").value;
+
+    const res = await fetch("/api/impact/analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ projectTitle, domain, description })
+    });
+
+    const data = await res.json();
+    document.getElementById("impact-result").innerHTML = marked.parse(data.impact);
+  });
+
+  /* =============================
+     AI CHAT MENTOR
+  ============================= */
+  document.getElementById("chat-form")?.addEventListener("submit", async e => {
+    e.preventDefault();
+
+    const message = document.getElementById("chat-input").value;
+    const userId = getSessionUserId();
+
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message, userId })
+    });
+
+    const data = await res.json();
+
+    const chatWindow = document.getElementById("chat-window");
+    chatWindow.innerHTML += `<div class='mb-2 p-2 bg-light rounded'>${marked.parse(data.reply)}</div>`;
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  });
+
+  /* =============================
+     DASHBOARD STATS
+  ============================= */
+  async function loadDashboard() {
+    const userId = getSessionUserId();
+    const res = await fetch(`/api/dashboard/stats?userId=${userId}`);
+    const data = await res.json();
+
+    document.getElementById("stat-ideas").innerText = data.stats?.ideas || 0;
+    document.getElementById("stat-learning").innerText = data.stats?.learningPaths || 0;
+    document.getElementById("stat-career").innerText = data.stats?.careerPlans || 0;
+    document.getElementById("stat-interactions").innerText = data.stats?.totalInteractions || 0;
+  }
+
+  document.getElementById("dashboard-tab")?.addEventListener("click", loadDashboard);
+  document.getElementById("refresh-dashboard")?.addEventListener("click", loadDashboard);
+});

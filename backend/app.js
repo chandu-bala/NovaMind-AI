@@ -104,5 +104,6 @@ app.use("/api/chat", chatRoutes);
 app.use("/api/project", projectRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 
+app.use(express.static(path.join(__dirname, "../frontend")));
 
 module.exports = app;
