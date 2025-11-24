@@ -1,14 +1,25 @@
 // backend/controllers/impact.controller.js
+console.log("✅ impact.controller loaded");
+
 const { db } = require("../config/firestore");
 const { generateText } = require("../services/gemini.service");
 
+/* =====================================
+   IMPACT ANALYSIS
+===================================== */
 async function analyzeImpact(req, res) {
+  console.log("🔥 Impact Analyzer HIT:", req.body);
+
   try {
-    const { projectTitle, domain, description } = req.body;
+    const { projectTitle, domain, description, userId } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({ error: "User not authenticated" });
+    }
 
     if (!projectTitle && !description) {
       return res.status(400).json({
-        error: "At least projectTitle or description is required.",
+        error: "projectTitle or description is required."
       });
     }
 
@@ -33,42 +44,60 @@ Return the response in sections with headings.
     const impact = await generateText(prompt);
 
     const docRef = await db.collection("impact_analysis").add({
+      userId,
       projectTitle: projectTitle || null,
       domain: domain || null,
       description: description || null,
       impact,
-      createdAt: new Date(),
+      createdAt: new Date()
     });
-    await db.collection("interactions").add({
-  type: "impact-analysis",
-  createdAt: new Date().toISOString(),
-});
 
+    await db.collection("interactions").add({
+      userId,
+      type: "impact-analysis",
+      createdAt: new Date().toISOString()
+    });
 
     return res.json({
+      success: true,
       id: docRef.id,
-      impact,
+      impact
     });
+
   } catch (error) {
-    console.error("Error in analyzeImpact:", error);
-    return res.status(500).json({ error: "Failed to analyze impact." });
+    console.error("🔥 Impact Analysis Error:", error);
+    return res.status(500).json({
+      error: "Failed to analyze impact",
+      details: error.message
+    });
   }
 }
 
+
+/* =====================================
+   IMPACT HISTORY (NO INDEX REQUIRED)
+===================================== */
 async function getImpactHistory(req, res) {
   try {
+    const userId = req.query.userId;
+
+    if (!userId) {
+      return res.status(401).json({ error: "User not authenticated" });
+    }
+
     const snapshot = await db
       .collection("impact_analysis")
-      .orderBy("createdAt", "desc")
+      .where("userId", "==", userId)
       .limit(20)
       .get();
 
-    const items = [];
-    snapshot.forEach((doc) => {
-      items.push({ id: doc.id, ...doc.data() });
-    });
+    const items = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
 
     return res.json({ items });
+
   } catch (error) {
     console.error("Error fetching impact history:", error);
     return res.status(500).json({ error: "Failed to fetch impact history." });
@@ -77,5 +106,5 @@ async function getImpactHistory(req, res) {
 
 module.exports = {
   analyzeImpact,
-  getImpactHistory,
+  getImpactHistory
 };

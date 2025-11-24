@@ -105,38 +105,40 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ---------- IDEA FORM ----------
-  document
-    .getElementById("idea-form")
-    .addEventListener("submit", async (e) => {
-      e.preventDefault();
+  document.getElementById("idea-form").addEventListener("submit", async e => {
+  e.preventDefault();
 
-      const idea = document.getElementById("idea-input").value;
-      const industry = document.getElementById("idea-industry").value;
+  const idea = document.getElementById("idea-input").value;
+  const industry = document.getElementById("idea-industry").value;
 
-      const loading = document.getElementById("idea-loading");
-      const result = document.getElementById("idea-result");
+  const sessionUser = JSON.parse(localStorage.getItem("novamind-session"));
 
-      loading.classList.remove("d-none");
-      result.textContent = "";
+  if (!sessionUser || !sessionUser.id) {
+    alert("Please login first.");
+    return;
+  }
 
-      try {
-        const data = await postJSON("/api/ideas/refine", {
-          idea,
-          industry,
-          userId: getSessionUserId(),
-        });
+  const data = await fetch("/api/ideas/refine", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      idea,
+      industry,
+      userId: sessionUser.id
+    })
+  });
 
-        if (data.analysis) {
-          result.innerHTML = marked.parse(data.analysis);
-        } else {
-          result.textContent = JSON.stringify(data, null, 2);
-        }
-      } catch (err) {
-        result.textContent = "Error: " + err.message;
-      } finally {
-        loading.classList.add("d-none");
-      }
-    });
+  const result = await data.json();
+
+  if (!result.success) {
+    console.error(result);
+    alert(result.error);
+    return;
+  }
+
+  document.getElementById("idea-result").innerHTML = marked.parse(result.analysis);
+});
+
 
   // ---------- DASHBOARD ----------
   async function loadDashboard() {
@@ -193,27 +195,23 @@ document.addEventListener("DOMContentLoaded", () => {
 window.showHistory = async function (type) {
   let url = "";
   let title = "";
+const sessionUser = JSON.parse(localStorage.getItem("novamind-session"));
 
-  const session = JSON.parse(localStorage.getItem("novamind-session"));
-  const userId = session ? session.id : null;
+if (!sessionUser) {
+  alert("Session expired. Please login again.");
+  return;
+}
 
-  if (!userId) {
-    alert("Please login to view details.");
-    return;
-  }
+if (type === "ideas") {
+  url = `/api/dashboard/ideas?userId=${sessionUser.id || sessionUser.email}`;
+}
+if (type === "learning") {
+  url = `/api/dashboard/learning?userId=${sessionUser.id || sessionUser.email}`;
+}
+if (type === "career") {
+  url = `/api/dashboard/careers?userId=${sessionUser.id || sessionUser.email}`;
+}
 
-  if (type === "ideas") {
-    url = `/api/dashboard/ideas?userId=${encodeURIComponent(userId)}`;
-    title = "Ideas Submitted";
-  }
-  if (type === "learning") {
-    url = `/api/dashboard/learning?userId=${encodeURIComponent(userId)}`;
-    title = "Learning Roadmaps";
-  }
-  if (type === "career") {
-    url = `/api/dashboard/careers?userId=${encodeURIComponent(userId)}`;
-    title = "Career Plans";
-  }
 
   try {
     const res = await fetch(url);

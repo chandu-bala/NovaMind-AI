@@ -1,3 +1,5 @@
+// backend/controllers/dashboard.controller.js
+console.log("✅ dashboard.controller loaded");
 const { db } = require("../config/firestore");
 
 /* =========================
@@ -30,25 +32,27 @@ async function getStats(req, res) {
         learningPaths: learningSnap.size,
         careerPlans: careerSnap.size,
         totalInteractions: interactionsSnap.size,
-      },
+      }
     });
 
   } catch (err) {
-    console.error("Dashboard error:", err.message);
+    console.error("🔥 Dashboard stats error:", err);
     res.status(500).json({ error: "Failed to fetch stats" });
   }
 }
 
 /* =========================
-   LIST IDEAS (PER USER)
+   LIST IDEAS
 ========================= */
 async function listIdeas(req, res) {
   try {
     const userId = req.query.userId;
 
+    if (!userId) return res.status(401).json({ error: "User not authenticated" });
+
     const snapshot = await db.collection("ideas")
       .where("userId", "==", userId)
-      .orderBy("createdAt", "desc")
+      .limit(50)
       .get();
 
     const ideas = snapshot.docs.map(doc => ({
@@ -57,7 +61,9 @@ async function listIdeas(req, res) {
     }));
 
     res.json({ success: true, ideas });
+
   } catch (err) {
+    console.error("🔥 Error listing ideas:", err);
     res.status(500).json({ error: "Failed to fetch ideas" });
   }
 }
@@ -69,9 +75,11 @@ async function listLearningPaths(req, res) {
   try {
     const userId = req.query.userId;
 
+    if (!userId) return res.status(401).json({ error: "User not authenticated" });
+
     const snapshot = await db.collection("learning_paths")
       .where("userId", "==", userId)
-      .orderBy("createdAt", "desc")
+      .limit(50)
       .get();
 
     const paths = snapshot.docs.map(doc => ({
@@ -80,7 +88,9 @@ async function listLearningPaths(req, res) {
     }));
 
     res.json({ success: true, paths });
+
   } catch (err) {
+    console.error("🔥 Error listing learning paths:", err);
     res.status(500).json({ error: "Failed to fetch learning paths" });
   }
 }
@@ -92,9 +102,11 @@ async function listCareerPlans(req, res) {
   try {
     const userId = req.query.userId;
 
+    if (!userId) return res.status(401).json({ error: "User not authenticated" });
+
     const snapshot = await db.collection("career_guidance")
       .where("userId", "==", userId)
-      .orderBy("createdAt", "desc")
+      .limit(50)
       .get();
 
     const careers = snapshot.docs.map(doc => ({
@@ -103,7 +115,9 @@ async function listCareerPlans(req, res) {
     }));
 
     res.json({ success: true, careers });
+
   } catch (err) {
+    console.error("🔥 Error listing careers:", err);
     res.status(500).json({ error: "Failed to fetch careers" });
   }
 }

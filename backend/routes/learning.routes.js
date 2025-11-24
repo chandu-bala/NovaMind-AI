@@ -7,7 +7,7 @@ const {
 } = require("../controllers/learning.controller");
 
 router.post("/roadmap", generateLearningRoadmap);
-router.get("/roadmap", generateLearningRoadmap);
+// router.get("/roadmap", generateLearningRoadmap);
 
 router.get("/history", getLearningPaths);
 

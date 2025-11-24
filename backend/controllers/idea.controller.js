@@ -1,4 +1,6 @@
 // backend/controllers/idea.controller.js
+console.log("✅ idea.controller loaded");
+
 const { db } = require("../config/firestore");
 const { generateText } = require("../services/gemini.service");
 
@@ -6,12 +8,20 @@ const { generateText } = require("../services/gemini.service");
    REFINE IDEA WITH INDUSTRY MODE
 ===================================== */
 async function refineIdea(req, res) {
+  console.log("🔥 refineIdea reached", req.body);
+
+  console.log("🔥 /api/ideas/refine HIT", req.body);
+
   try {
-    const { idea, domain, industry } = req.body;
+    const { idea, industry,userId } = req.body;
 
     if (!idea) {
       return res.status(400).json({ error: "Idea is required." });
     }
+    
+if (!userId) {
+  return res.status(401).json({ error: "User not authenticated" });
+}
 
     const prompt = `
 You are a senior project mentor and software architect.
@@ -19,7 +29,6 @@ You are a senior project mentor and software architect.
 User's Raw Idea:
 "${idea}"
 
-Domain: ${domain || "Not specified"}
 Industry Focus: ${industry || "General"}
 
 Task:
@@ -55,19 +64,21 @@ Ensure the explanation is clean, professional, and formatted using Markdown.
     const analysis = await generateText(prompt);
 
     const docRef = await db.collection("ideas").add({
-      userId,
-      idea,
-      domain: domain || null,
-      industry: industry || null,
-      analysis,
-      createdAt: new Date(),
-    });
+  userId,
+  idea,
+  industry: industry || null,
+  analysis,
+  createdAt: new Date(),
+});
+
 
     // Track interaction for dashboard
     await db.collection("interactions").add({
-      type: "idea-refine",
-      createdAt: new Date().toISOString(),
-    });
+  userId,
+  type: "idea-refine",
+  createdAt: new Date().toISOString(),
+});
+
 
     return res.json({
       success: true,
@@ -77,9 +88,13 @@ Ensure the explanation is clean, professional, and formatted using Markdown.
     });
 
   } catch (error) {
-    console.error("Error in refineIdea:", error);
-    return res.status(500).json({ error: "Failed to refine idea." });
-  }
+  console.error("Gemini FULL ERROR:", error?.message || error);
+  res.status(500).json({
+    error: "Failed to refine idea.",
+    details: error?.message || error
+  });
+}
+
 }
 
 
@@ -88,9 +103,15 @@ Ensure the explanation is clean, professional, and formatted using Markdown.
 ===================================== */
 async function getIdeas(req, res) {
   try {
+    const userId = req.query.userId;
+
+    if (!userId) {
+      return res.status(401).json({ error: "User not authenticated" });
+    }
+
     const snapshot = await db
       .collection("ideas")
-      .orderBy("createdAt", "desc")
+      .where("userId", "==", userId)
       .limit(20)
       .get();
 
@@ -108,13 +129,16 @@ async function getIdeas(req, res) {
 }
 
 
+
 /* =====================================
    AI IDEA SCORING SYSTEM
 ===================================== */
 async function scoreIdea(req, res) {
   try {
-    const { idea, domain, industry } = req.body;
-
+    const { idea, industry ,userId} = req.body;
+if (!userId) {
+      return res.status(401).json({ error: "User not authenticated" });
+    }
     if (!idea) {
       return res.status(400).json({ error: "Idea is required for scoring." });
     }
@@ -127,7 +151,6 @@ Evaluate the following project idea and provide numeric scores out of 10.
 Idea:
 ${idea}
 
-Domain: ${domain || "Not specified"}
 Industry Focus: ${industry || "General"}
 
 Return the following in Markdown format:
@@ -152,9 +175,10 @@ Keep the explanation concise but insightful.
     const scores = await generateText(prompt);
 
     await db.collection("interactions").add({
-      type: "idea-score",
-      createdAt: new Date().toISOString(),
-    });
+  userId,
+  type: "idea-score",
+  createdAt: new Date().toISOString(),
+});
 
     res.json({
       success: true,
@@ -162,8 +186,11 @@ Keep the explanation concise but insightful.
     });
 
   } catch (error) {
-    console.error("Error in scoreIdea:", error);
-    res.status(500).json({ error: "Idea scoring failed." });
+    console.error("Gemini FULL ERROR:", error?.message || error);
+  res.status(500).json({
+    error: "Failed to refine idea.",
+    details: error?.message || error
+  });
   }
 }
 

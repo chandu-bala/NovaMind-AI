@@ -1,15 +1,25 @@
 // backend/controllers/career.controller.js
+console.log("✅ career.controller loaded");
+
 const { db } = require("../config/firestore");
 const { generateText } = require("../services/gemini.service");
 
+/* =====================================
+   CAREER GUIDANCE GENERATION
+===================================== */
 async function getCareerGuidance(req, res) {
+  console.log("🔥 Career Guidance HIT:", req.body);
+
   try {
-    const { education, skills, interests, targetRole } = req.body;
+    const { education, skills, interests, targetRole, userId } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({ error: "User not authenticated" });
+    }
 
     if (!education && !skills && !interests && !targetRole) {
       return res.status(400).json({
-        error:
-          "At least one of education, skills, interests, or targetRole is required.",
+        error: "At least one profile field is required"
       });
     }
 
@@ -27,12 +37,13 @@ User Profile:
    - Role name
    - Why it's a good fit
    - Skills required
-   - Suggested upskilling path (high-level)
+   - Suggested upskilling path
 
-3. Suggest types of mentors they should look for on LinkedIn (e.g., "Senior Cloud Engineer", "AI Researcher", etc.)
-4. Provide 3-5 sample LinkedIn search queries they can use to find relevant mentors.
+3. Suggest mentor types they should seek on LinkedIn.
 
-Return answer in structured format.
+4. Provide 3-5 LinkedIn search queries.
+
+Return structured response.
 `;
 
     const guidance = await generateText(prompt);
@@ -46,36 +57,53 @@ Return answer in structured format.
       guidance,
       createdAt: new Date(),
     });
-    await db.collection("interactions").add({
-  type: "career-guidance",
-  createdAt: new Date().toISOString(),
-});
 
+    await db.collection("interactions").add({
+      userId,
+      type: "career-guidance",
+      createdAt: new Date().toISOString(),
+    });
 
     return res.json({
+      success: true,
       id: docRef.id,
       guidance,
     });
+
   } catch (error) {
-    console.error("Error in getCareerGuidance:", error);
-    return res.status(500).json({ error: "Failed to generate career guidance." });
+    console.error("🔥 Career Guidance Error:", error);
+    return res.status(500).json({
+      error: "Failed to generate career guidance",
+      details: error.message
+    });
   }
 }
 
+
+/* =====================================
+   CAREER HISTORY (NO INDEX REQUIRED)
+===================================== */
 async function getCareerHistory(req, res) {
   try {
+    const userId = req.query.userId;
+
+    if (!userId) {
+      return res.status(401).json({ error: "User not authenticated" });
+    }
+
     const snapshot = await db
       .collection("career_guidance")
-      .orderBy("createdAt", "desc")
+      .where("userId", "==", userId)
       .limit(20)
       .get();
 
-    const items = [];
-    snapshot.forEach((doc) => {
-      items.push({ id: doc.id, ...doc.data() });
-    });
+    const items = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
 
     return res.json({ items });
+
   } catch (error) {
     console.error("Error fetching career history:", error);
     return res.status(500).json({ error: "Failed to fetch career history." });
