@@ -38,6 +38,7 @@ Return answer in structured format.
     const guidance = await generateText(prompt);
 
     const docRef = await db.collection("career_guidance").add({
+      userId,
       education: education || null,
       skills: skills || null,
       interests: interests || null,

@@ -24,12 +24,14 @@ Respond in a friendly, concise, and helpful way, guiding the user about projects
     const reply = await generateText(prompt);
 
     const docRef = await db.collection("chat_sessions").add({
+      
       message,
       context: context || null,
       reply,
       createdAt: new Date(),
     });
     await db.collection("interactions").add({
+       userId,
   type: "chat",
   createdAt: new Date().toISOString(),
 });

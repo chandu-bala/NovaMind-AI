@@ -55,6 +55,7 @@ Ensure the explanation is clean, professional, and formatted using Markdown.
     const analysis = await generateText(prompt);
 
     const docRef = await db.collection("ideas").add({
+      userId,
       idea,
       domain: domain || null,
       industry: industry || null,

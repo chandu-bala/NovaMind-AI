@@ -38,6 +38,7 @@ Return the answer in a structured, readable format with headings and bullet poin
     const roadmap = await generateText(prompt);
 
     const docRef = await db.collection("learning_paths").add({
+      userId,
       goal,
       level,
       hoursPerDay,
