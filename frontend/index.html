@@ -15,6 +15,17 @@
     <link rel="stylesheet" href="./css/styles.css" />
   </head>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<div class="modal fade" id="dashboardModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="dashboardModalTitle"></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="dashboardModalBody"></div>
+    </div>
+  </div>
+</div>
 
   <body>
     <!-- Navbar -->
@@ -130,7 +141,7 @@
           <div class="card h-100">
             <div class="card-body">
               <h6>Ideas Submitted</h6>
-              <h2 id="stat-ideas">0</h2>
+              <h2 id="stat-ideas" onclick="showHistory('ideas')" style="cursor:pointer">0</h2>
             </div>
           </div>
         </div>
@@ -139,7 +150,7 @@
           <div class="card h-100">
             <div class="card-body">
               <h6>Learning Roadmaps</h6>
-              <h2 id="stat-learning">0</h2>
+              <h2 id="stat-learning" onclick="showHistory('learning')" style="cursor:pointer">0</h2>
             </div>
           </div>
         </div>
@@ -148,7 +159,7 @@
           <div class="card h-100">
             <div class="card-body">
               <h6>Career Plans</h6>
-              <h2 id="stat-career">0</h2>
+              <h2 id="stat-career" onclick="showHistory('career')" style="cursor:pointer">0</h2>
             </div>
           </div>
         </div>

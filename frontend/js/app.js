@@ -252,3 +252,58 @@ document
 document
   .getElementById("dashboard-tab")
   .addEventListener("click", loadDashboard);
+
+  async function showHistory(type) {
+  let url = "";
+  let title = "";
+
+  if (type === "ideas") {
+    url = "/api/dashboard/ideas";
+    title = "Ideas Submitted";
+  }
+  if (type === "learning") {
+    url = "/api/dashboard/learning";
+    title = "Learning Roadmaps";
+  }
+  if (type === "career") {
+    url = "/api/dashboard/careers";
+    title = "Career Plans";
+  }
+
+  const res = await fetch(url);
+  const data = await res.json();
+
+  let html = "";
+
+  if (type === "ideas") {
+    data.ideas.forEach(item => {
+      html += `<div class="mb-2 p-2 border rounded">
+        <b>Idea:</b> ${item.idea}<br>
+        <small>${item.domain || ""}</small>
+      </div>`;
+    });
+  }
+
+  if (type === "learning") {
+    data.paths.forEach(item => {
+      html += `<div class="mb-2 p-2 border rounded">
+        <b>Goal:</b> ${item.goal}<br>
+        <small>Level: ${item.level}</small>
+      </div>`;
+    });
+  }
+
+  if (type === "career") {
+    data.careers.forEach(item => {
+      html += `<div class="mb-2 p-2 border rounded">
+        <b>Target Role:</b> ${item.targetRole}<br>
+        <small>${item.skills}</small>
+      </div>`;
+    });
+  }
+
+  document.getElementById("dashboardModalTitle").textContent = title;
+  document.getElementById("dashboardModalBody").innerHTML = html;
+
+  new bootstrap.Modal(document.getElementById("dashboardModal")).show();
+}

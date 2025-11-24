@@ -21,5 +21,39 @@ async function getStats(req, res) {
     res.status(500).json({ error: "Failed to fetch stats" });
   }
 }
+async function listIdeas(req, res) {
+  try {
+    const snapshot = await db.collection("ideas").orderBy("createdAt", "desc").get();
+    const ideas = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    res.json({ success: true, ideas });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch ideas" });
+  }
+}
 
-module.exports = { getStats };
+async function listLearningPaths(req, res) {
+  try {
+    const snapshot = await db.collection("learning_paths").orderBy("createdAt", "desc").get();
+    const paths = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    res.json({ success: true, paths });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch learning paths" });
+  }
+}
+
+async function listCareerPlans(req, res) {
+  try {
+    const snapshot = await db.collection("career_guidance").orderBy("createdAt", "desc").get();
+    const careers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    res.json({ success: true, careers });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch careers" });
+  }
+}
+
+module.exports = { 
+  getStats, 
+  listIdeas, 
+  listLearningPaths, 
+  listCareerPlans 
+};
