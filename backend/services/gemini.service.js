@@ -13,17 +13,20 @@ async function generateText(prompt) {
     };
 
     const response = await generativeModel.generateContent(request);
-    const candidates = response?.candidates || [];
-    const text =
-      candidates[0]?.content?.parts?.map((p) => p.text).join("\n") ||
-      "No response generated.";
+
+    if (!response.candidates || !response.candidates.length) {
+      throw new Error("No response returned from Gemini");
+    }
+
+    const text = response.candidates[0].content.parts
+      .map(part => part.text)
+      .join("\n");
+
     return text;
   } catch (error) {
-    console.error("Gemini generation error:", error);
+    console.error("🔥 Gemini generation error:", error.message);
     throw new Error("Failed to generate response from Gemini");
   }
 }
 
-module.exports = {
-  generateText,
-};
+module.exports = { generateText };
