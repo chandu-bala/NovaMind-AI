@@ -1,2 +1,7 @@
 .env
 node_modules
+# Ignore sensitive credentials
+backend/service-account.json
+backend/.env
+
+service-account.json
