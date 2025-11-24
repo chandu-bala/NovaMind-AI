@@ -1,6 +1,7 @@
-// backend/app.js
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
+
 const ideaRoutes = require("./routes/idea.routes");
 const learningRoutes = require("./routes/learning.routes");
 const careerRoutes = require("./routes/career.routes");
@@ -9,18 +10,18 @@ const chatRoutes = require("./routes/chat.routes");
 
 const app = express();
 
-// Middlewares
 app.use(cors());
 app.use(express.json());
 
-// Health check
-app.get("/", (req, res) => {
-  res.json({
-    message: "NovaMind-AI backend is running 🚀",
-  });
+// Serve static frontend
+app.use(express.static(path.join(__dirname, "../frontend")));
+
+// Optional: health check for Cloud Run
+app.get("/health", (req, res) => {
+  res.json({ status: "ok", message: "NovaMind-AI backend is running 🚀" });
 });
 
-// Routes
+// API routes
 app.use("/api/ideas", ideaRoutes);
 app.use("/api/learning", learningRoutes);
 app.use("/api/career", careerRoutes);
