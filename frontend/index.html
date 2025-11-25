@@ -188,6 +188,13 @@
   <div class="card shadow-sm">
     <div class="card-header fw-bold">📊 AI Progress Dashboard</div>
     <div class="card-body">
+    <h5 class="mb-2 text-muted">
+  Welcome, <span id="dashboard-username" class="fw-bold">User</span> 👋
+</h5>
+    <button id="logout-btn" class="btn btn-outline-danger btn-sm">
+      Logout
+    </button>
+
 
       <button class="btn btn-outline-dark mb-3" id="refresh-dashboard">
         Refresh Stats
@@ -490,6 +497,7 @@
                 >
                   Evaluating impact...
                 </span>
+                
               </form>
               <hr />
               <h6>Impact Analysis</h6>
@@ -541,6 +549,20 @@
       </div> <!-- end of dashboard-page -->
 
     </main>
+    <!-- HISTORY MODAL -->
+<div class="modal fade" id="historyModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="historyTitle">History</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="historyContent">
+        <div class="text-center text-muted">Loading...</div>
+      </div>
+    </div>
+  </div>
+</div>
 
     <!-- Bootstrap JS (for tabs etc.) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

@@ -1,28 +1,24 @@
-# Use official Node image
 FROM node:20-alpine
 
-# Set working directory
 WORKDIR /app
 
-# Copy package files
 COPY backend/package*.json ./backend/
-
-# Install backend dependencies
 WORKDIR /app/backend
 RUN npm install
 
-# Copy full project into container
 WORKDIR /app
 COPY backend ./backend
 COPY frontend ./frontend
-COPY backend/service-account.json ./backend/service-account.json
 
-# Expose port used by Express
-EXPOSE 8080
+# ✅ Copy your service account file
+COPY backend/service-account.json /app/service-account.json
 
-# Set environment variables
+# ✅ Tell Google SDK where credentials are
+ENV GOOGLE_APPLICATION_CREDENTIALS=/app/service-account.json
+
 ENV NODE_ENV=production
 ENV PORT=8080
 
-# Start backend server
+EXPOSE 8080
+
 CMD ["node", "backend/server.js"]
